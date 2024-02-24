@@ -2,14 +2,14 @@ import { useInView } from "react-intersection-observer";
 import useArticlesInfiniteQuery from "@/hooks/useArticlesInfiniteQuery";
 import LoadingSpinner from "@/ui/LoadingSpinner";
 import { useEffect } from "react";
-import ArticlesList from "@/ui/ArticlesList";
 import Article from "@/ui/Article";
+import List from "@/ui/List";
 import Button from "@/ui/Button";
 import { useSearchParams } from "@/Providers/SearchParamsProvider";
 
 const ArticlesGrid = () => {
 
-  const {getSearchParam} = useSearchParams();
+  const { getSearchParam } = useSearchParams();
   const searchParam = getSearchParam("search");
   
   const {
@@ -22,7 +22,12 @@ const ArticlesGrid = () => {
     isLoading,
     refetch,
   } = useArticlesInfiniteQuery({
-    searchIn : searchParam,
+
+    searchIn : searchParam ?? "",
+    pageSize: 10,
+    page: 1,
+    q: "all",
+    
   });
 
   
@@ -52,14 +57,15 @@ const ArticlesGrid = () => {
   return (
     <section>
       <pre>{searchParam}</pre>
-      <ArticlesList
-        articles={articles || []}
-        articleView={(article, index, articlesLength) => (
+      <List
+        listItems={articles || []}
+        itemView={(article, index, articlesLength) => (
           <Article
             article={article}
             ref={index === articlesLength - 1 ? ref : null}
           />
         )}
+        keyExtractor={(article) => article.url}
       />
       <div className="flex flex-col gap-5 items-center mt-5">
         <Button
