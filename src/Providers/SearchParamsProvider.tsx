@@ -1,9 +1,9 @@
+import { pullSearchState, pushSearchState } from "@/utils/url";
 import React, {
   createContext,
   useContext,
   useState,
   useEffect,
- 
 } from "react";
 
 type SearchParamsContext = {
@@ -22,32 +22,14 @@ type Props = {
   children: React.ReactNode;
 };
 
+
 const SearchParamsProvider = ({ children }: Props) => {
-  const [searchParams, setSearchParams] = useState<Record<string, string>>(
-    () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      return Object.fromEntries(searchParams.entries());
-    }
-  );
+    
+  const [searchParams, setSearchParams] = useState(pullSearchState());
+
 
   useEffect(() => {
-    const URLsearchParams = new URLSearchParams();
-    const searchEntries = Object.entries(searchParams);
-
-    if (searchEntries.length === 0) {
-      history.pushState(null, "", "/");
-      return;
-    }
-
-    for (const [key, value] of searchEntries) {
-        if (value === "") {
-            delete searchParams[key];
-            continue;
-        }
-      URLsearchParams.set(key, value);
-    }
-    const queryString = URLsearchParams.toString();
-    history.pushState(null, "", ` ${queryString ? `?${queryString}` : "/"}`);
+    pushSearchState(searchParams)
   }, [searchParams]);
 
   const getSearchParam = (param: string) => {
@@ -63,6 +45,7 @@ const SearchParamsProvider = ({ children }: Props) => {
     const { [param]: _, ...newSearchParams } = searchParams;
     setSearchParams(newSearchParams);
   };
+
   return (
     <searchParamsContext.Provider
       value={{
